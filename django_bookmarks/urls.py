@@ -17,4 +17,5 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     (r'^$', main_page),
     (r'^user/(\w+)/$', user_page),
+    (r'^login/$', 'django.contrib.auth.views.login'),
 )
