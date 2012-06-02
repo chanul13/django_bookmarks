@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Desktop browser template based on example from "Bulletproof Web Design... by Dan Cederholm (3rd ed.), p. xv" -->
 <head>
     <title>Django Bookmarks | {% block title %} {% endblock %}</title>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <!-- Reset CSS
-	<link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/reset.css">
     -->
-	<!-- Enable HTML5 elements in IE7+8-->
-	<!--[if lt IE 9]>
-	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
-	<script> // JavaScript can go here </script>
+    <link href="/site_media/style.css type="text/css" />
+    <script> // JavaScript can go here </script>
 </head>
 <body>
+    <div id="nav">
+        <a href="/">home</a> |
+        {% if user.is_authenticated %}
+            welcome {{ user.username }}
+            (<a href="/logout">logout</a>)
+        {% else %}
+            <a href="/login/">login</a>
+        {% endif %}
+    </div>
     <h1>{% block head %} {% endblock %}</h1>
     {% block content %} {% endblock %}
 </body>
