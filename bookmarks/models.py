@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Link inherits from models.Model which is the base
+# class for all models.
 class Link(models.Model):
     url = models.URLField(unique=True)
 

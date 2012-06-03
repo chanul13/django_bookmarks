@@ -1,10 +1,10 @@
-import re
+import re  # Regular expression library
 from django.contrib.auth.models import User
 from django import forms
 
 class RegistrationForm(forms.Form):
     
-    # Attributes
+    # Define the form
     username = forms.CharField(label=u'Username', max_length=30)
     email = forms.EmailField(label=u'Email')
     password1 = forms.CharField(
@@ -16,7 +16,10 @@ class RegistrationForm(forms.Form):
         widget=forms.PasswordInput()
     )
     
+    # All custom validation methods start with "clean_"
     def clean_password2(self):
+        # All data which passed form validation are accessible
+        # through the "self.cleaned_data" dictionary
         if 'password1' in self.cleaned_data:
             password1 = self.cleaned_data['password1']
             password2 = self.cleaned_data['password2']
@@ -32,6 +35,9 @@ class RegistrationForm(forms.Form):
         try:
             User.objects.get(username = username)
         except User.DoesNotExist:
+            # If the username doesn't exist (i.e. it's not already
+            # taken and it contains valid chars, then it's a valid
+            # username
             return username
         raise forms.ValidationError('Username is already taken.')
 

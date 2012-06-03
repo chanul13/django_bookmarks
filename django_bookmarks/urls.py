@@ -11,6 +11,7 @@ site_media = os.path.join(
 # from django.contrib import admin
 # admin.autodiscover()
 
+# The patterns function maps regex URLs to views
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'django_bookmarks.views.home', name='home'),
@@ -21,8 +22,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    (r'^$', main_page),
+    (r'^$', main_page),  # r'..' indicates a raw string
     (r'^user/(\w+)/$', user_page),
+    # This login view is in a package outside my project
     (r'^login/$', 'django.contrib.auth.views.login'),
     (r'^logout/$', logout_page),
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', 

@@ -5,12 +5,16 @@
     {% if form.errors %}
         <p>Your username and password didn't match.  Please try again.</p>
     {% endif %}
+    <!-- action="." tells form to send its data to the 
+    URL it originated from -->
     <form method="post" action=".">
         {% csrf_token %}
         <p><label for="id_username">Username:</label>
             {{ form.username }}</p>
         <p><label for="id_password">Password:</label>
             {{ form.password }}</p>
+        <!-- "next" tells the view where to redirect user 
+        after they've successfully logged in -->
         <input type="hidden" name="next" value="/" />
         <input type="submit" value="login" />
     </form>
