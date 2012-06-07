@@ -2,6 +2,7 @@
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+LOGIN_URL = '/login/'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
