@@ -22,14 +22,23 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+
+    # Browsing
     (r'^$', main_page),  # r'..' indicates a raw string
     (r'^user/(\w+)/$', user_page),
+
+    # Session management
     # This login view is in a package outside my project
     (r'^login/$', 'django.contrib.auth.views.login'),
     (r'^logout/$', logout_page),
-    (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', 
-        { 'document_root': site_media }),
     (r'^register/$', register_page),
     (r'^register/success/$', direct_to_template,
         {'template': 'registration/register_success.html'}),
+
+    # Account management
+    (r'^save/$', bookmark_save_page),
+
+    # Site media
+    (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', 
+        { 'document_root': site_media }),
 )

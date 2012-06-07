@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.contrib.auth import logout
 from bookmarks.forms import *
+from bookmarks.models import *
 
 '''
 def main_page(request):
@@ -33,6 +34,7 @@ def main_page(request):
         RequestContext(request)
     )
 
+
 # username contains the string in the capturing parentheses
 # in urls.py file
 def user_page(request, username):
@@ -53,9 +55,11 @@ def user_page(request, username):
     })
     return render_to_response('user_page.html', variables)
 
+
 def logout_page(request):
     logout(request)
     return HttpResponseRedirect('/')
+
 
 def register_page(request):
     # Has user submitted the form?
@@ -86,3 +90,63 @@ def register_page(request):
         'registration/register.html',
         variables
     )
+
+
+def bookmark_save_page(request):
+
+    if request.method == 'POST':  # If the form has been submitted...
+
+        # Input data (via request.POST) is passed to a BookmarkSaveForm object
+        # for validation.
+        form = BookmarkSaveForm(request.POST)   # A form bound to the POSTed data.
+
+        if form.is_valid():   # If form passes validation...
+
+            # Create or get link object from Bookmark model.
+            # See if the link is already in the database.  If it's not
+            # create one and store it in the database. Return the created
+            # object and a Boolean: True if it was created, False if it was
+            # already in the database.
+            link, dummy = Link.objects.get_or_create(
+                url = form.cleaned_data['url']
+            )
+
+            # Create or get bookmark.  We don't want to add the 
+            # same bookmark twice so we use get or create.
+            bookmark, created = Bookmark.objects.get_or_create(
+                user = request.user,
+                link = link
+            )
+
+            # Update bookmark title.
+            bookmark.title = form.cleaned_data['title']
+
+            # If the bookmark is being updated, clear old tag list.
+            if not created:
+                bookmark.tag_set.clear()
+
+            # Create new tag list.
+            tag_names = form.cleaned_data['tags'].split()
+            for tag_name in tag_names:
+                tag, created = Tag.objects.get_or_create(name = tag_name)
+                bookmark.tag_set.add(tag)
+
+            # Save bookmark to database.
+            bookmark.save()
+
+            # Redirect user to next page.
+            return HttpResponseRedirect(
+                '/user/%s/' % request.user.username
+            )
+
+    else:
+
+        # Form was requested using GET.  Create a bookmark form.
+        form = BookmarkSaveForm()
+
+    # Pass the bookmark form to the template.
+    variables = RequestContext(request, {
+        'form': form
+    })
+
+    return render_to_response('bookmark_save.html', variables)

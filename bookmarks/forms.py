@@ -4,7 +4,7 @@ from django import forms
 
 class RegistrationForm(forms.Form):
     
-    # Define the form
+    # Form fields
     username = forms.CharField(label=u'Username', max_length=30)
     email = forms.EmailField(label=u'Email')
     password1 = forms.CharField(
@@ -50,3 +50,21 @@ class RegistrationForm(forms.Form):
         except User.DoesNotExist:
             return username
         raise forms.ValidationError('Email is already in use by another user.')
+
+class BookmarkSaveForm(forms.Form):
+
+    # Form fields
+    url = forms.URLField(
+        label = u'URL',
+        widget = forms.TextInput(attrs = {'size': 64})
+    )
+    title =  forms.CharField(
+        label = u'Title',
+        widget = forms.TextInput(attrs = {'size': 64})
+    )
+    tags = forms.CharField(
+        label=u'Tags',
+        required = False,
+        widget = forms.TextInput(attrs = {'size': 64})
+    )
+
