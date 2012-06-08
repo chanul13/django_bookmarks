@@ -26,6 +26,8 @@ urlpatterns = patterns('',
     # Browsing
     (r'^$', main_page),  # r'..' indicates a raw string
     (r'^user/(\w+)/$', user_page),
+    # Matches one or more non-whitespace characters
+    (r'^tag/([^\s]+)/$', tag_page),
 
     # Session management
     # This login view is in a package outside my project

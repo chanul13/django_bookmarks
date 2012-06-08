@@ -1,0 +1,5 @@
+
+The login view in django.contrib.auth.views expects there to be a template called registration/login.html in the application's templates directory.  
+
+See p. 49 in "Django 1.0 Web Development."
+

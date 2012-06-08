@@ -7,20 +7,18 @@
                 <br />
 
                 {% if show_tags %}
-                    Tags:
+                    Tags:&nbsp;&nbsp; 
                     {% if bookmark.tag_set.all %}
-                        <ul class="tags">
-                            {% for tag in bookmark.tag_set.all %}
-                                <li>{{ tag.name }}</li>
-                            {% endfor %}
-                        </ul>
+                        {% for tag in bookmark.tag_set.all %}
+                            <a href="/tag/{{ tag.name }}/">{{ tag.name }}</a>&nbsp;
+                        {% endfor %}
                     {% else %}
-                        None.
+                        (none)
                     {% endif %}
-                    <br />
                 {% endif %}
 
                 {% if show_user %}
+                    <br />
                     Posted by:
                     <a href="/user/{{ bookmark.user.username }}/"
                        class="username">{{ bookmark.user.username }}</a>

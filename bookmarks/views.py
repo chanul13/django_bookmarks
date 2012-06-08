@@ -23,8 +23,17 @@ def main_page(request):
 # username contains the string in the capturing parentheses
 # in urls.py file
 def user_page(request, username):
+    ''' 
+    Call the get_object... method. Pass in the User class and 
+    and the username. Use them to retrieve that user's info
+    from the database and create a user object.  If the user
+    isn't found, generate a 404 error page.
+    '''
     user = get_object_or_404(User, username=username)
-    # Display bookmarks by id in descending (most recent first) order.
+    '''
+    Display bookmarks associated with the given user in 
+    descending (most recent first) order by id.
+    '''
     bookmarks = user.bookmark_set.order_by('-id')
     try:
         # First username is the database field. Second is 
@@ -37,12 +46,40 @@ def user_page(request, username):
     # This is explained in the "Making queries" Django doc page.
     bookmarks = user.bookmark_set.all()
 
+    # username, bookmarks, show_tags are the context.
     variables = RequestContext(request, {
         'username': username,
         'bookmarks': bookmarks,
         'show_tags': True
     })
+    # View is finished. Render the user page.
     return render_to_response('user_page.html', variables)
+
+
+def tag_page(request, tag_name):
+
+    ''' 
+    Use the tag name to create a tag object. This object
+    is populated from information about the tag from the database.
+    '''
+    tag = get_object_or_404(Tag, name=tag_name)
+
+    # Get all bookmarks associated with the given tag in descending order.
+    bookmarks = tag.bookmarks.order_by('-id')
+
+    # Set up variables to pass to the tag_page template.
+    # bookmarks, etc. comprise the context.  Context is just
+    # a dictionary of values.
+    variables = RequestContext(request, {
+        'bookmarks': bookmarks,
+        'tag_name' : tag_name,
+        'show_tags': True,
+        'show_user': True
+    })
+    # View is done. Now populate template with the contents
+    # of the dictionary, i.e, the context.  It gets passed a
+    # Context instance by default, not a RequestContext.
+    return render_to_response('tag_page.html', variables)
 
 
 def logout_page(request):
