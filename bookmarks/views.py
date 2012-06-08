@@ -3,28 +3,12 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.contrib.auth.models import User
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from bookmarks.forms import *
 from bookmarks.models import *
 
-'''
-def main_page(request):
-
-    # Load the main_page template
-    template = get_template('main_page.html')
-
-    # Assign values to the template variables
-    variables = Context({ 'user': request.user })
-
-    # Render HTML in template, replacing variables with their values
-    output = template.render(variables)
-
-    # HttpResponse is a Django class.  Instantiate an
-    # HttpResponse object that contains the output.
-    return HttpResponse(output)
-'''
 # "request" is an object that contains the contents of the 
 # HTTP request as a hash, E.g. request.POST contains POST data.
 def main_page(request):
@@ -39,6 +23,9 @@ def main_page(request):
 # username contains the string in the capturing parentheses
 # in urls.py file
 def user_page(request, username):
+    user = get_object_or_404(User, username=username)
+    # Display bookmarks by id in descending (most recent first) order.
+    bookmarks = user.bookmark_set.order_by('-id')
     try:
         # First username is the database field. Second is 
         # the actual username input argument.
@@ -52,7 +39,8 @@ def user_page(request, username):
 
     variables = RequestContext(request, {
         'username': username,
-        'bookmarks': bookmarks
+        'bookmarks': bookmarks,
+        'show_tags': True
     })
     return render_to_response('user_page.html', variables)
 
