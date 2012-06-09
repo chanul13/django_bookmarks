@@ -10,7 +10,9 @@
                     Tags:&nbsp;&nbsp; 
                     {% if bookmark.tag_set.all %}
                         {% for tag in bookmark.tag_set.all %}
-                            <a href="/tag/{{ tag.name }}/">{{ tag.name }}</a>&nbsp;
+                            <!-- urlencode is a template filter that escapes the string
+                            so it can be used in the URL -->
+                            <a href="/tag/{{ tag.name|urlencode }}/">{{ tag.name }}</a>&nbsp;
                         {% endfor %}
                     {% else %}
                         (none)

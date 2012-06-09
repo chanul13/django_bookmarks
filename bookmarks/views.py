@@ -177,3 +177,46 @@ def bookmark_save_page(request):
     })
 
     return render_to_response('bookmark_save.html', variables)
+
+def tag_cloud_page(request):
+
+    # Maximum tag weight
+    MAX_WEIGHT = 5
+
+    # Get all tags sorted by name.
+    tags = Tag.objects.order_by('name')
+
+    # Get a starting value for min and max counts by
+    # counting the number of bookmarks associated with
+    # the first tag in the QuerySet.
+    min_count = max_count = tags[0].bookmarks.count()
+
+    # Adjust min and max counts:
+    # Get the number of bookmarks associated with each tag.
+    # If that number is less than min_count, set min_count
+    # to that lower number.  Also, if it's greater than
+    # max_count, set max_count to that higher number.
+    for tag in tags:
+        # Create a temporary attribute for the count.
+        tag.count = tag.bookmarks.count()
+        if tag.count < min_count:
+            min_count = tag.count
+        if max_count < tag.count:
+            max_count = tag.count
+
+    # Calculate the count range. Avoid dividing by zero.
+    range = float(max_count - min_count)
+    if range == 0.0:
+        range = 1.0
+
+    # Calculate the tag weights.
+    for tag in tags:
+        tag.weight = int(
+            MAX_WEIGHT * (tag.count - min_count) / range
+        )
+
+    variables = RequestContext(request, {
+        'tags': tags 
+    })
+    
+    return render_to_response('tag_cloud_page.html', variables)
