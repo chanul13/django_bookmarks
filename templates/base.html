@@ -3,11 +3,8 @@
 <head>
     <title>Django Bookmarks | {% block title %} {% endblock %}</title>
     <meta charset="utf-8">
-    <!-- Reset CSS
-    <link rel="stylesheet" href="/css/reset.css">
-    -->
-    <link href="/site_media/style.css type="text/css" />
-    <script> // JavaScript can go here </script>
+    <link href="{{ STATIC_URL }}style.css type="text/css" />
+    {% block external %}{% endblock %}
 </head>
 <body>
     <div id="nav">
@@ -23,5 +20,8 @@
     </div>
     <h1>{% block head %} {% endblock %}</h1>
     {% block content %} {% endblock %}
+
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}bookmarks.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import os
 from django.conf.urls import patterns, include, url
 from bookmarks.views import *
 from django.views.generic.simple import direct_to_template
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 site_media = os.path.join(
     os.path.dirname(__file__), 'site_media'
@@ -25,6 +26,7 @@ urlpatterns = patterns('',
 
     # Browsing
     (r'^$', main_page),  # r'..' indicates a raw string
+    (r'^test/$', test_page),
     (r'^user/(\w+)/$', user_page),
     # "[^\s]+" Matches one or more non-whitespace characters
     (r'^tag/([^\s]+)/$', tag_page),
@@ -45,3 +47,6 @@ urlpatterns = patterns('',
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', 
         { 'document_root': site_media }),
 )
+
+# For serving static files
+urlpatterns += staticfiles_urlpatterns()

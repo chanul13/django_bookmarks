@@ -20,6 +20,14 @@ def main_page(request):
     )
 
 
+# Test page
+def test_page(request):
+    return render_to_response(
+        'test_page.html',
+        RequestContext(request)
+    )
+
+
 # username contains the string in the capturing parentheses
 # in urls.py file
 def user_page(request, username):
