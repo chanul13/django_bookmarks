@@ -228,3 +228,32 @@ def tag_cloud_page(request):
     })
     
     return render_to_response('tag_cloud_page.html', variables)
+
+def search_page(request):
+
+    form = SearchForm()  # Generate the search form.
+    bookmarks = []       # Holds bookmarks to display in search results.
+    show_results = False # If False, there was no query so don't display _anything_.
+                         # If True, there was a query so either display results or
+                         # or "No bookmarks found".
+
+    if 'query' in request.GET:  # If a query was sent...
+        show_results = True     # ... show search results.
+        query = request.GET['query'].strip()  # Strip non-white space chars from query string.
+
+        if query:
+            form = SearchForm({ 'query': query })  # Bind the form to the query (huh?).
+            bookmarks = Bookmark.objects.filter(   # Get list of bookmarks.
+                title__icontains = query           # "filter" is a SQL SELECT.
+            )[:10]  # icontains is case-insensitive "contains"
+                    # Only retrieve the first 10 results.
+
+    variables = RequestContext(request, {  # Pass everything to template for rendering.
+        'form': form,
+        'bookmarks': bookmarks,
+        'show_results': show_results,
+        'show_tags': True,
+        'show_user': True
+    })
+
+    return render_to_response('search.html', variables)

@@ -31,6 +31,7 @@ urlpatterns = patterns('',
     # "[^\s]+" Matches one or more non-whitespace characters
     (r'^tag/([^\s]+)/$', tag_page),
     (r'^tag/$', tag_cloud_page),
+    (r'^search/$', search_page),
 
     # Session management
     # This login view is in a package outside my project
