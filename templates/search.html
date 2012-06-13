@@ -1,6 +1,12 @@
 {% extends "base.html" %}
+
+{% block external %}
+<script type="text/javascript" src="{{ STATIC_URL }}search.js"></script>
+{% endblock %}
+
 {% block title %}Search Bookmarks{% endblock %}
 {% block head %}Search Bookmarks{% endblock %}
+
 {% block content %}
 <form id="search-form" method="get" action=".">
     {% csrf_token %}
