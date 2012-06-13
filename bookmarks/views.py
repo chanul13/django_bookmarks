@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from bookmarks.forms import *
 from bookmarks.models import *
 
+#######################
 # "request" is an object that contains the contents of the 
 # HTTP request as a hash, E.g. request.POST contains POST data.
 def main_page(request):
@@ -19,7 +20,7 @@ def main_page(request):
         RequestContext(request)
     )
 
-
+#######################
 # Test page
 def test_page(request):
     return render_to_response(
@@ -27,7 +28,7 @@ def test_page(request):
         RequestContext(request)
     )
 
-
+#################################
 # username contains the string in the capturing parentheses
 # in urls.py file
 def user_page(request, username):
@@ -58,12 +59,15 @@ def user_page(request, username):
     variables = RequestContext(request, {
         'username': username,
         'bookmarks': bookmarks,
-        'show_tags': True
+        'show_tags': True,
+        # If the user is viewing their own page, display the 'edit'
+        # link next to each bookmark.
+        'show_edit': username == request.user.username
     })
     # View is finished. Render the user page.
     return render_to_response('user_page.html', variables)
 
-
+################################
 def tag_page(request, tag_name):
 
     ''' 
@@ -89,12 +93,12 @@ def tag_page(request, tag_name):
     # Context instance by default, not a RequestContext.
     return render_to_response('tag_page.html', variables)
 
-
+#########################
 def logout_page(request):
     logout(request)
     return HttpResponseRedirect('/')
 
-
+###########################
 def register_page(request):
     # Has user submitted the form?
     if request.method == 'POST':
@@ -125,7 +129,7 @@ def register_page(request):
         variables
     )
 
-
+################################
 @login_required
 def bookmark_save_page(request):
 
@@ -137,42 +141,46 @@ def bookmark_save_page(request):
 
         if form.is_valid():   # If form passes validation...
 
-            # Create or get link object from Bookmark model.
-            # See if the link is already in the database.  If it's not
-            # create one and store it in the database. Return the created
-            # object and a Boolean: True if it was created, False if it was
-            # already in the database.
-            link, dummy = Link.objects.get_or_create(
-                url = form.cleaned_data['url']
-            )
-
-            # Create or get bookmark.  We don't want to add the 
-            # same bookmark twice so we use get or create.
-            bookmark, created = Bookmark.objects.get_or_create(
-                user = request.user,
-                link = link
-            )
-
-            # Update bookmark title.
-            bookmark.title = form.cleaned_data['title']
-
-            # If the bookmark is being updated, clear old tag list.
-            if not created:
-                bookmark.tag_set.clear()
-
-            # Create new tag list.
-            tag_names = form.cleaned_data['tags'].split()
-            for tag_name in tag_names:
-                tag, created = Tag.objects.get_or_create(name = tag_name)
-                bookmark.tag_set.add(tag)
-
-            # Save bookmark to database.
-            bookmark.save()
+            bookmark = _bookmark_save(request, form)
 
             # Redirect user to next page.
             return HttpResponseRedirect(
                 '/user/%s/' % request.user.username
             )
+    elif 'url' in request.GET:  # If 'url' in GET string...
+
+        url = request.GET['url']
+        title = ''
+        tags = ''
+
+        try:
+            # Get the link and bookmark objects that correspond
+            # to this URL and user.
+            link = Link.objects.get(url = url)
+            bookmark = Bookmark.objects.get(
+                link = link,
+                user = request.user
+            )
+            title = bookmark.title
+            
+            # Concatenate the names of all tags associated 
+            # with given bookmark.
+            tags = ' '.join(
+                tag.name for tag in bookmark.tag_set.all()
+            )
+        except (Link.DoesNotExist, Bookmark.DoesNotExist):
+            # This is a null operation.  Essentially, if we
+            # can't find either the URL or its associated
+            # bookmark, we'll only populate the URL field below,
+            # leaving the title and tags fields blank.
+            pass
+
+        # Bind the data to the BookmarkSaveForm.
+        form = BookmarkSaveForm({
+            'url'  : url,
+            'title': title,
+            'tags' : tags
+        })
 
     else:
 
@@ -186,6 +194,7 @@ def bookmark_save_page(request):
 
     return render_to_response('bookmark_save.html', variables)
 
+############################
 def tag_cloud_page(request):
 
     # Maximum tag weight
@@ -229,6 +238,7 @@ def tag_cloud_page(request):
     
     return render_to_response('tag_cloud_page.html', variables)
 
+#########################
 def search_page(request):
 
     form = SearchForm()  # Generate the search form.
@@ -260,3 +270,40 @@ def search_page(request):
         return render_to_response('bookmark_list.html', variables)
     else:
         return render_to_response('search.html', variables)
+
+##################################
+def _bookmark_save(request, form):
+
+    # Create or get link object from Bookmark model.
+    # See if the link is already in the database.  If it's not
+    # create one and store it in the database. Return the created
+    # object and a Boolean: True if it was created, False if it was
+    # already in the database.
+    link, dummy = Link.objects.get_or_create(
+        url = form.cleaned_data['url']
+    )
+
+    # Create or get bookmark.  We don't want to add the 
+    # same bookmark twice so we use get or create.
+    bookmark, created = Bookmark.objects.get_or_create(
+        user = request.user,
+        link = link
+    )
+
+    # Update bookmark title.
+    bookmark.title = form.cleaned_data['title']
+
+    # If the bookmark is being updated, clear old tag list.
+    if not created:
+        bookmark.tag_set.clear()
+
+    # Create new tag list.
+    tag_names = form.cleaned_data['tags'].split()
+    for tag_name in tag_names:
+        tag, created = Tag.objects.get_or_create(name = tag_name)
+        bookmark.tag_set.add(tag)
+
+    # Save bookmark to database.
+    bookmark.save()
+
+    return bookmark

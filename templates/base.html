@@ -3,7 +3,7 @@
 <head>
     <title>Django Bookmarks | {% block title %} {% endblock %}</title>
     <meta charset="utf-8">
-    <link href="{{ STATIC_URL }}style.css type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css" />
     {% block external %}{% endblock %}
 </head>
 <body>
@@ -19,8 +19,11 @@
             <a href="/register/">register</a>
         {% endif %}
     </div>
-    <h1>{% block head %} {% endblock %}</h1>
-    {% block content %} {% endblock %}
+
+    <div id="wrapper">
+        <h1>{% block head %} {% endblock %}</h1>
+        {% block content %} {% endblock %}
+    </div>
 
     <script type="text/javascript" src="{{ STATIC_URL }}jquery.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}bookmarks.js"></script>
