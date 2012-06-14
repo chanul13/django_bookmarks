@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from bookmarks.forms import *
 from bookmarks.models import *
 
-#######################
+
 # "request" is an object that contains the contents of the 
 # HTTP request as a hash, E.g. request.POST contains POST data.
 def main_page(request):
@@ -20,7 +20,7 @@ def main_page(request):
         RequestContext(request)
     )
 
-#######################
+
 # Test page
 def test_page(request):
     return render_to_response(
@@ -28,7 +28,7 @@ def test_page(request):
         RequestContext(request)
     )
 
-#################################
+
 # username contains the string in the capturing parentheses
 # in urls.py file
 def user_page(request, username):
@@ -67,7 +67,7 @@ def user_page(request, username):
     # View is finished. Render the user page.
     return render_to_response('user_page.html', variables)
 
-################################
+
 def tag_page(request, tag_name):
 
     ''' 
@@ -93,12 +93,12 @@ def tag_page(request, tag_name):
     # Context instance by default, not a RequestContext.
     return render_to_response('tag_page.html', variables)
 
-#########################
+
 def logout_page(request):
     logout(request)
     return HttpResponseRedirect('/')
 
-###########################
+
 def register_page(request):
     # Has user submitted the form?
     if request.method == 'POST':
@@ -129,9 +129,12 @@ def register_page(request):
         variables
     )
 
-################################
+
 @login_required
 def bookmark_save_page(request):
+
+    # Boolean. True if 'ajax' in GET string.
+    ajax = 'ajax' in request.GET
 
     if request.method == 'POST':  # If the form has been submitted...
 
@@ -143,10 +146,24 @@ def bookmark_save_page(request):
 
             bookmark = _bookmark_save(request, form)
 
-            # Redirect user to next page.
-            return HttpResponseRedirect(
-                '/user/%s/' % request.user.username
-            )
+            if ajax:  # If this is an Ajax request...
+                variables = RequestContext(request, {
+                    'bookmarks': [bookmark],
+                    'show_edit': True,
+                    'show_tags': True
+                })
+                return render_to_response(
+                    'bookmark_list.html', variables
+                )
+            else:  # Otherwise, this is a normal form submission.
+                return HttpResponseRedirect(
+                    '/user/%s/' % request.user.username
+                )
+        else:  # If form didn't validate...
+            if ajax:  #... and it's an Ajax request...
+                return HttpResponse(u'failure')  # We'll display a JavaScript error dialog box.
+            # Otherwise the form will be reloaded and display the errors for the user to correct.
+
     elif 'url' in request.GET:  # If 'url' in GET string...
 
         url = request.GET['url']
@@ -192,9 +209,19 @@ def bookmark_save_page(request):
         'form': form
     })
 
-    return render_to_response('bookmark_save.html', variables)
+    # If we get to here, there was no POST data.  Just render form and return it.
+    if ajax:
+        return render_to_response(
+            'bookmark_save_form.html',
+            variables
+        )
+    else:
+        return render_to_response(
+            'bookmark_save.html', 
+            variables
+        )
 
-############################
+
 def tag_cloud_page(request):
 
     # Maximum tag weight
@@ -238,7 +265,7 @@ def tag_cloud_page(request):
     
     return render_to_response('tag_cloud_page.html', variables)
 
-#########################
+
 def search_page(request):
 
     form = SearchForm()  # Generate the search form.
@@ -271,7 +298,7 @@ def search_page(request):
     else:
         return render_to_response('search.html', variables)
 
-##################################
+
 def _bookmark_save(request, form):
 
     # Create or get link object from Bookmark model.
