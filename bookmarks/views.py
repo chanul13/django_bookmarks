@@ -8,17 +8,21 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from bookmarks.forms import *
 from bookmarks.models import *
+import pdb
 
 
 # "request" is an object that contains the contents of the 
 # HTTP request as a hash, E.g. request.POST contains POST data.
 def main_page(request):
-    # Simpler than above. Render an HttpResponse object that
-    # contains the main_pate template containing...
-    return render_to_response(
-        'main_page.html',
-        RequestContext(request)
-    )
+    shared_bookmarks = SharedBookmark.objects.order_by(
+        '-date'
+    )[:10]  # Limit the list to the first 10 results.
+
+    variables = RequestContext(request, {
+        'shared_bookmarks': shared_bookmarks
+    })
+
+    return render_to_response('main_page.html', variables)
 
 
 # Test page
@@ -158,6 +162,7 @@ def bookmark_save_page(request):
             else:  # Otherwise, this is a normal form submission.
                 return HttpResponseRedirect(
                     '/user/%s/' % request.user.username
+
                 )
         else:  # If form didn't validate...
             if ajax:  #... and it's an Ajax request...
@@ -330,7 +335,39 @@ def _bookmark_save(request, form):
         tag, created = Tag.objects.get_or_create(name = tag_name)
         bookmark.tag_set.add(tag)
 
+    # Share bookmark on main page if requested.
+    if form.cleaned_data['share']:
+        shared, created = SharedBookmark.objects.get_or_create(
+            bookmark = bookmark
+        )
+        if created:
+            # If the shared bookmark object was created, add the current user
+            # to the list of users for voted for the bookmark.
+            shared.users_voted.add(request.user)
+            shared.save()
+
     # Save bookmark to database.
     bookmark.save()
 
     return bookmark
+
+
+@login_required
+def bookmark_vote_page(request):
+
+    if 'id' in request.GET:
+        try:
+            id = request.GET['id']
+            shared_bookmark = SharedBookmark.objects.get(id = id)
+            user_voted = shared_bookmark.users_voted.filter(username = request.user.username)
+            if not user_voted:
+                shared_bookmark.votes += 1
+                shared_bookmark.users_voted.add(request.user)
+                shared_bookmark.save()
+        except SharedBookmark.DoesNotExist:
+            raise Http404('Bookmark not found.')
+
+    if 'HTTP_REFERER' in request.META:
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+    return HttpResponseRedirect('/')

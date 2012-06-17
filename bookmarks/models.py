@@ -23,3 +23,17 @@ class Tag(models.Model):
 
     def __unicode__(self):
         return self.name
+
+class SharedBookmark(models.Model):
+    # Each bookmark can only be shared one time.
+    bookmark = models.ForeignKey(Bookmark, unique=True)
+    # When creating a shared bookmark, automatically set date field to current date/time.
+    date = models.DateTimeField(auto_now_add=True)
+    # When creating a shared bookmark, initialize its votes to 1.
+    votes = models.IntegerField(default=1)
+    # Each user can vote for one or more shared bookmarks and each shared bookmark
+    # can be voted on by one or more users.
+    users_voted = models.ManyToManyField(User)
+
+    def __unicode__(self):
+        return u'%s, %s' % (self.bookmark, self.votes)

@@ -1,6 +1,12 @@
 import re  # Regular expression library
 from django.contrib.auth.models import User
 from django import forms
+from django.forms.widgets import RadioSelect
+
+YES_OR_NO = (
+    (True, 'Yes'),
+    (False, 'No')
+)
 
 class RegistrationForm(forms.Form):
     
@@ -66,6 +72,12 @@ class BookmarkSaveForm(forms.Form):
         label=u'Tags',
         required = False,
         widget = forms.TextInput(attrs = {'size': 64})
+    )
+    share = forms.BooleanField(
+        widget = RadioSelect(choices = YES_OR_NO),
+        initial = True,
+        label = u'Share on the main page!',
+        required = False
     )
 
 class SearchForm(forms.Form):
