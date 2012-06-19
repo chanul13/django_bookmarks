@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     # Browsing
     (r'^$', main_page),  # r'..' indicates a raw string
     (r'^test/$', test_page),
+    (r'^popular/$', popular_page),
     (r'^user/(\w+)/$', user_page),
     # "[^\s]+" Matches one or more non-whitespace characters
     (r'^tag/([^\s]+)/$', tag_page),
