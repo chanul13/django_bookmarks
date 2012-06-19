@@ -33,6 +33,9 @@ urlpatterns = patterns('',
     (r'^tag/([^\s]+)/$', tag_page),
     (r'^tag/$', tag_cloud_page),
     (r'^search/$', search_page),
+    # Comments
+    (r'^comments/', include('django.contrib.comments.urls')),
+    (r'^bookmark/(\d+)/$', bookmark_page),
 
     # Session management
     # This login view is in a package outside my project

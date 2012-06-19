@@ -31,3 +31,12 @@ ul.tags, ul.tags li {
 ul.bookmarks .edit {
   font-size: 80%;
 }
+
+textarea {
+    display: block;
+}
+.comment {
+    margin: 1em;
+    padding: 5px;
+    border: 1px solid #000;
+}
