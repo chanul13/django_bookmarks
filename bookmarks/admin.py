@@ -5,7 +5,10 @@ class LinkAdmin(admin.ModelAdmin):
     pass
 
 class BookmarkAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('title', 'link', 'user')
+    list_filter = ('user',)
+    ordering = ('title',)
+    search_fields = ('title',)
 
 class TagAdmin(admin.ModelAdmin):
     pass
