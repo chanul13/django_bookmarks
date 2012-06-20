@@ -4,13 +4,18 @@ from bookmarks.views import *
 from django.views.generic.simple import direct_to_template
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+# Needed for admin I/F
+# Note: Book "Django 1.0 Website Development" said to use the following line.
+# It isn't necessary in Django 1.4.
+# admin.autodiscover()
+
 site_media = os.path.join(
     os.path.dirname(__file__), 'site_media'
 )
 
 # Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from django.contrib import admin
+admin.autodiscover()
 
 # The patterns function maps regex URLs to views
 urlpatterns = patterns('',
@@ -22,7 +27,10 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
+    # Note: Book "Django 1.0 Website Development" said to use the following line.
+    # It isn't necessary in Django 1.4.
+    # url(r'admin/', admin.site.root),
 
     # Browsing
     (r'^$', main_page),  # r'..' indicates a raw string
