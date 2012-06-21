@@ -11,6 +11,9 @@ from bookmarks.models import *
 import pdb
 from datetime import datetime, timedelta
 from django.db.models import Q
+from django.core.paginator import Paginator, InvalidPage
+
+ITEMS_PER_PAGE = 4
 
 
 # "request" is an object that contains the contents of the 
@@ -45,30 +48,36 @@ def user_page(request, username):
     isn't found, generate a 404 error page.
     '''
     user = get_object_or_404(User, username=username)
-    '''
-    Display bookmarks associated with the given user in 
-    descending (most recent first) order by id.
-    '''
-    bookmarks = user.bookmark_set.order_by('-id')
-    try:
-        # First username is the database field. Second is 
-        # the actual username input argument.
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        raise Http404(u'Requested user not found')
+    query_set = user.bookmark_set.order_by('-id')
+    paginator = Paginator(query_set, ITEMS_PER_PAGE)
 
-    # Obtain list of bookmarks for the given user.
-    # This is explained in the "Making queries" Django doc page.
-    bookmarks = user.bookmark_set.all()
+    try:
+        page_number = int(request.GET['page'])  # GET should contain a 'page' variable...
+    except (KeyError, ValueError):  # If it doesn't, assume we want the first page.
+        page_number = 1
+
+    try:
+        page = paginator.page(page_number)  # Get the current page.
+    except InvalidPage:
+        raise Http404
+
+    bookmarks = page.object_list  # Retrieve the bookmarks for the current page.
 
     # username, bookmarks, show_tags are the context.
     variables = RequestContext(request, {
-        'username': username,
         'bookmarks': bookmarks,
+        'username': username,
         'show_tags': True,
         # If the user is viewing their own page, display the 'edit'
         # link next to each bookmark.
-        'show_edit': username == request.user.username
+        'show_edit': username == request.user.username,
+        'show_paginator': paginator.num_pages > 1,  # If more than one page, show paginator.
+        'has_prev': page.has_previous(),            # If there's a previous page, show link to it.
+        'has_next': page.has_next(),                # If there's a next page, show link to it.
+        'page': page_number,                        # Index of current page
+        'pages': paginator.num_pages,               # Total number of pages
+        'next_page': page_number + 1,               # Index of next page
+        'prev_page': page_number - 1                # Index of previous page
     })
     # View is finished. Render the user page.
     return render_to_response('user_page.html', variables)
