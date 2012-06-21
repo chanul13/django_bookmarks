@@ -10,6 +10,7 @@ from bookmarks.forms import *
 from bookmarks.models import *
 import pdb
 from datetime import datetime, timedelta
+from django.db.models import Q
 
 
 # "request" is an object that contains the contents of the 
@@ -285,11 +286,14 @@ def search_page(request):
         query = request.GET['query'].strip()  # Strip non-white space chars from query string.
 
         if query:
+            keywords = query.split()
+            
+            q = Q()
+            for keyword in keywords:
+                q = q & Q(title__icontains=keyword)
+
             form = SearchForm({ 'query': query })  # Bind the form to the query (huh?).
-            bookmarks = Bookmark.objects.filter(   # Get list of bookmarks.
-                title__icontains = query           # "filter" is a SQL SELECT.
-            )[:10]  # icontains is case-insensitive "contains"
-                    # Only retrieve the first 10 results.
+            bookmarks = Bookmark.objects.filter(q)[:10]
 
     variables = RequestContext(request, {  # Pass everything to template for rendering.
         'form': form,
