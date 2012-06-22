@@ -45,6 +45,10 @@ urlpatterns = patterns('',
     (r'^comments/', include('django.contrib.comments.urls')),
     (r'^bookmark/(\d+)/$', bookmark_page),
 
+    # Friends
+    (r'^friends/(\w+)/$', friends_page),
+    (r'^friends/add/$', friend_add),
+
     # Session management
     # This login view is in a package outside my project
     (r'^login/$', 'django.contrib.auth.views.login'),

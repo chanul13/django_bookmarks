@@ -37,3 +37,28 @@ class SharedBookmark(models.Model):
 
     def __unicode__(self):
         return u'%s, %s' % (self.bookmark, self.votes)
+
+class Friendship(models.Model):
+    # Since this class has two FKs that point to the same class, we have
+    # to specify a 'related_name' attribute to differentiate them.
+    # 'friend_set' contains the friends of a user.
+    # 'to_friend_set' contains the users who added this user as a friend.
+    #
+    # 'from_friend' is the person who initiates the friendship.
+    # 'to_friend' is the recipent of from_friend's friendship.  They're
+    # the person 'from_friend' is friends with.
+    from_friend = models.ForeignKey(User, related_name = 'friend_set')
+    to_friend = models.ForeignKey(User, related_name = 'to_friend_set')
+
+    def __unicode__(self):
+        return u'%s, %s' % (
+            self.from_friend.username,
+            self.to_friend.username
+        )
+
+    # Options related to this class
+    class Meta:
+        # No more than one to_friend/from_friend tuple can exist in the database.
+        # In other words, any particular friendship can only be added to the 
+        # database one time.
+        unique_together = (('to_friend', 'from_friend'), )

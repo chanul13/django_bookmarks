@@ -51,6 +51,14 @@ def user_page(request, username):
     query_set = user.bookmark_set.order_by('-id')
     paginator = Paginator(query_set, ITEMS_PER_PAGE)
 
+    if request.user.is_authenticated():
+        is_friend = Friendship.objects.filter(
+            from_friend = request.user,
+            to_friend = user
+        )
+    else:
+        is_friend = False
+
     try:
         page_number = int(request.GET['page'])  # GET should contain a 'page' variable...
     except (KeyError, ValueError):  # If it doesn't, assume we want the first page.
@@ -77,7 +85,8 @@ def user_page(request, username):
         'page': page_number,                        # Index of current page
         'pages': paginator.num_pages,               # Total number of pages
         'next_page': page_number + 1,               # Index of next page
-        'prev_page': page_number - 1                # Index of previous page
+        'prev_page': page_number - 1,               # Index of previous page
+        'is_friend': is_friend
     })
     # View is finished. Render the user page.
     return render_to_response('user_page.html', variables)
@@ -416,3 +425,39 @@ def bookmark_page(request, bookmark_id):
     })
     return render_to_response('bookmark_page.html', variables)
 
+def friends_page(request, username):
+    user = get_object_or_404(User, username = username)
+
+    # Create a list of friends of the given user using Python's list comprehension feature.
+    # Note that user.friend_set.all() returns a list of tuples containing the user's id
+    # and their friend's id.  friendship.to_friend grabs the persons they're friends with
+    # and adds those persons to the friends list.
+    friends = [friendship.to_friend for friendship in user.friend_set.all()]
+    friend_bookmarks = Bookmark.objects.filter(user__in=friends).order_by('-id')
+
+    variables = RequestContext(request, {
+        'username': username,
+        'friends': friends,
+        'bookmarks': friend_bookmarks[:10],
+        'show_tags': True,
+        'show_user': True
+    })
+    return render_to_response('friends_page.html', variables)
+
+@login_required
+def friend_add(request):
+    if 'username' in request.GET:
+        friend = get_object_or_404(
+            User, username = request.GET['username']
+        )
+        friendship = Friendship(
+            from_friend = request.user,
+            to_friend = friend
+        )
+        friendship.save()
+
+        return HttpResponseRedirect(
+            '/friends/%s/' % request.user.username
+        )
+    else:
+        raise Http404
