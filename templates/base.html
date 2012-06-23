@@ -24,7 +24,18 @@
 
     <div id="wrapper">
         <h1>{% block head %} {% endblock %}</h1>
-        {% block content %} {% endblock %}
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <!-- Actual page content -->
+        {% block content %}
+        {% endblock %}
     </div>
 
     <script type="text/javascript" src="{{ STATIC_URL }}jquery.js"></script>

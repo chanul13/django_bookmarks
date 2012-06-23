@@ -454,7 +454,16 @@ def friend_add(request):
             from_friend = request.user,
             to_friend = friend
         )
-        friendship.save()
+
+        try:
+            friendship.save()
+            request.user.message_set.create(
+                message = u'%s was added to your friend list.' % friend.username
+            )
+        except:
+            request.user.message_set.create(
+                message = u'%s is already a friend of yours.' % friend.username
+            )
 
         return HttpResponseRedirect(
             '/friends/%s/' % request.user.username
