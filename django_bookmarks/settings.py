@@ -23,8 +23,8 @@ DATABASES = {
 }
 
 # Enable local memory caching for 5 minute intervals
-CACHE_BACKEND = 'locmem:///'
-CACHE_MIDDLEWARE_SECONDS = 60 * 5
+CACHES_BACKEND = 'locmem:///'
+CACHES_MIDDLEWARE_SECONDS = 60 * 5
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
